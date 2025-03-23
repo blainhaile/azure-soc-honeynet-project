@@ -1,1 +1,0 @@
-# azure-soc-honeynet-project
