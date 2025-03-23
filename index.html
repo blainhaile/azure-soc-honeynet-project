@@ -19,6 +19,10 @@
         h3 {
             color: skyblue;
         }
+        ul {
+            list-style-type: disc;
+            margin-left: 20px;
+        }
     </style>
 </head>
 <body>
@@ -39,7 +43,71 @@
     <p>A virtual network named lab vnet is created to host the initial VMs.</p>
     <p>Network Security Groups (NSGs): NSGs act as firewalls in Azure. Initially, a dangerous rule is added to the NSGs associated with both the Windows and Linux VMs to allow any inbound traffic from any source to any destination, making them highly vulnerable. This is done specifically to generate attack logs.</p>
 
-    <!-- Add other sections of your content here following the same structure -->
+    <h2>2. Vulnerability Introduction</h2>
+    <p>Windows Firewall Disablement: The Windows Defender Firewall is completely turned off on the Windows VM to make it directly accessible from the internet.</p>
+    <p>SQL Server Installation and Configuration:</p>
+    <ul>
+        <li>SQL Server Evaluation edition is downloaded and installed on the Windows VM.</li>
+        <li>Mixed Mode authentication is enabled, and an sa user with a password is created.</li>
+        <li>The Windows VM user is also added as an administrator to the SQL Server.</li>
+    </ul>
+    <p>SQL Server Logging to Windows Event Viewer: The SQL Server is configured to send audit logs (failed and successful logins) to the Windows Event Viewer by modifying permissions in the registry editor and running a command in the Command Prompt.</p>
+    <p>SQL Server Management Studio (SSMS): SSMS is installed on the Windows VM to provide a graphical interface for managing the SQL Server. Login auditing is configured in SSMS to capture both failed and successful login attempts.</p>
 
+    <h2>3. Attack Simulation</h2>
+    <p>RDP Brute-Force Attempt: From the attacker VM, multiple failed Remote Desktop Protocol (RDP) login attempts are made against the Windows VM using an incorrect username.</p>
+    <p>SQL Injection/Brute-Force Attempt: SSMS is installed on the attacker VM, and several failed login attempts are made against the SQL Server on the Windows VM using incorrect credentials. Subsequently, a successful login is performed.</p>
+    <p>SSH Brute-Force Attempt: From the attacker VM, multiple failed Secure Shell (SSH) login attempts are made against the Linux VM using an incorrect username. A successful SSH connection is then established using the correct credentials.</p>
+
+    <h2>4. Log Collection and Management</h2>
+    <p>Windows Event Viewer: The Windows Event Viewer on the Windows VM is used to observe security logs (RDP attempts) and application logs (SQL Server login attempts).</p>
+    <p>Linux Audit Logs: The auth.log file on the Linux VM is examined via SSH to view authentication attempts, demonstrating the high volume and complexity of raw logs.</p>
+    <p>Log Analytics Workspace: A Log Analytics Workspace (law RG lab) is created in Azure to serve as a centralized repository for logs.</p>
+    <p>Microsoft Sentinel: Microsoft Sentinel is deployed and connected to the Log Analytics Workspace to provide SIEM and Security Orchestration, Automation and Response (SOAR) capabilities.</p>
+    <p>GeoIP Watchlist: A CSV file (goipsummarized.csv) is downloaded and uploaded as a watchlist named GeoIP in Microsoft Sentinel. This watchlist helps correlate IP addresses with geographical locations for map visualizations.</p>
+
+    <h2>5. Enabling Data Connectors</h2>
+    <p>Microsoft Defender for Cloud: Microsoft Defender for Cloud is enabled for the subscription and configured to collect all security events. Continuous export is set up to send data to the Log Analytics Workspace.</p>
+    <p>NSG Flow Logs: NSG flow logs are configured for both the Linux and Windows VMs, sending traffic logs to a newly created Azure Storage Account. Traffic analytics is enabled to provide insights into network traffic.</p>
+    <p>Azure Monitor Agent and Data Collection Rules: Data collection rules are created in Azure Monitor to collect Syslog from the Linux VM (specifically login/logoff events) and Windows Event Logs (Security and Application) from the Windows VM and send them to the Log Analytics Workspace. Custom XPath queries are added to collect specific event IDs related to malicious detection and Windows Firewall tampering.</p>
+    <p>Entra ID (Azure AD) Logs: Diagnostic settings are configured in Entra ID to send Audit Logs and Sign-in Logs to the Log Analytics Workspace. A new user (test) with Global Administrator privileges is created and attempts to sign in (with both failed and successful attempts) to generate these logs.</p>
+    <p>Azure Activity Log: Diagnostic settings are configured to export the Azure Activity Log (subscription-level events) to the Log Analytics Workspace.</p>
+    <p>Resource-Specific Logs: Diagnostic settings are enabled for a Storage Account (Blob service - Audit logs) and a Key Vault (all logs) to send their logs to the Log Analytics Workspace. Actions like creating a container in the storage account and accessing a secret in the key vault are performed to generate these logs.</p>
+
+    <h2>6. Data Visualization with Workbooks</h2>
+    <p>Four workbooks are created in Microsoft Sentinel to visualize the collected data on maps:</p>
+    <ul>
+        <li>Windows RDP Authentication Failures</li>
+        <li>Network Flows Geo Map</li>
+        <li>SQL Authentication Failure Map</li>
+        <li>Linux SSH Authentication Failure Map</li>
+    </ul>
+
+    <h2>7. Incident Detection with Analytics Rules</h2>
+    <p>Analytics rules are imported into Microsoft Sentinel from a GitHub file. These rules contain KQL queries designed to detect specific threats based on the collected logs, such as brute-force attempts on Windows and Linux VMs and potential privilege escalation. Incidents are generated based on the configured analytics rules, highlighting suspicious activities.</p>
+
+    <h2>8. Basic Incident Response and Hardening</h2>
+    <p>Incidents generated in Microsoft Sentinel are reviewed. Basic incident response actions are demonstrated, such as assigning an incident and changing its status to "Closed" after remediation.</p>
+    <p>Hardening measures are implemented to reduce the attack surface:</p>
+    <ul>
+        <li>The dangerous inbound security rules in the NSGs for the Windows and Linux VMs are modified to allow traffic only from my IP address.</li>
+        <li>The Windows Defender Firewall on the Windows VM is turned back on.</li>
+    </ul>
+
+    <h2>9. Measuring the Impact of Hardening</h2>
+    <p>KQL queries are used to gather metrics on security events (e.g., Syslog count) before and after the hardening measures are implemented. The goal is to demonstrate a reduction in malicious activity and improve the security posture after applying the remediations.</p>
+
+    <h2>Key Concepts Demonstrated</h2>
+    <ul>
+        <li>Honeynet: Creating seemingly vulnerable systems to attract and analyze attacks.</li>
+        <li>SOC Operations: Simulating the workflow of a security operations center, including monitoring, detection, and response.</li>
+        <li>Vulnerability Management: Intentionally creating vulnerabilities to understand attack vectors and then remediating them.</li>
+        <li>Log Aggregation and Analysis: Using a SIEM (Microsoft Sentinel) to collect, centralize, and analyze logs from various sources.</li>
+        <li>Threat Detection: Creating and using analytics rules to identify suspicious and malicious activities.</li>
+        <li>Incident Response: Performing basic steps to manage and resolve security incidents.</li>
+        <li>Cloud Security: Implementing and managing security controls within the Azure cloud environment.</li>
+        <li>Network Security: Configuring and managing Network Security Groups as cloud-based firewalls.</li>
+        <li>Identity and Access Management: Observing logs related to user creation, role assignments, and sign-in attempts in Entra ID.</li>
+    </ul>
 </body>
 </html>
