@@ -9,10 +9,6 @@
             font-family: "Times New Roman", Times, serif;
             line-height: 1.6;
             margin: 20px;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            justify-content: space-between;
         }
         h1 {
             color: hotpink;
@@ -27,87 +23,12 @@
             list-style-type: disc;
             margin-left: 20px;
         }
-        /* Styling the tabs */
-        .tabs {
-            display: flex;
-            background-color: lightpink; /* Light pink background for tabs */
-            padding: 10px;
-            border-radius: 5px 5px 0 0;
-            position: fixed;
-            top: 20px;
-            left: 0;
-            right: 0;
-            z-index: 1;
-        }
-        .tab {
-            padding: 10px;
-            margin-right: 10px;
-            cursor: pointer;
-            color: green; /* Green text for the tabs */
-            background-color: lightpink;
-            border: 2px solid lightpink;
-            border-radius: 5px;
-        }
-        .tab:hover {
-            background-color: #f4c0c0; /* Slightly darker pink when hovered */
-        }
-        .tab-content {
-            display: none;
-            padding: 20px;
-            border-top: 2px solid lightpink;
-            margin-top: 100px; /* To make room for the fixed tabs */
-        }
-        .active-tab {
-            display: block;
-        }
-        /* Styling for the main content */
-        .main-content {
-            margin-top: 80px; /* Ensure space for the fixed tabs */
-            flex-grow: 1;
-        }
     </style>
 </head>
 <body>
     <h1>Azure Cybersecurity Lab - Security Operations Center (SOC) and Honeynet ☁️🛡️</h1>
     <p>This cybersecurity lab in Azure aims to demonstrate the creation of a honeynet and the operation of a Security Operations Center (SOC) to identify and remediate vulnerabilities. The lab involves building a vulnerable environment, simulating attacks, collecting and analyzing logs using a Security Information and Event Management (SIEM) system, visualizing the data, detecting incidents, and performing basic incident response. Here is a breakdown of the lab components and steps:</p>
 
-    <!-- Tabs -->
-    <div class="tabs">
-        <div class="tab" onclick="showTab('keyConcepts')">Key Concepts Demonstrated</div>
-        <div class="tab" onclick="showTab('proofProject')">Proof of the Project</div>
-    </div>
-
-    <!-- Main content area -->
-    <div class="main-content">
-        <div id="keyConcepts" class="tab-content">
-            <h2>Key Concepts Demonstrated</h2>
-            <p>Here, the key concepts demonstrated include setting up the honeynet, simulating attacks, monitoring network traffic, and utilizing the SIEM system for analysis. The lab demonstrates how the SOC can respond to potential threats, detect vulnerabilities, and apply necessary security measures to ensure the system's integrity.</p>
-        </div>
-
-        <div id="proofProject" class="tab-content">
-            <h2>Proof of the Project</h2>
-            <p>In this section, we provide proof of the project by showing screenshots, logs, and data visualizations that demonstrate how the SOC and honeynet functioned during the attack simulation. The outcomes are validated through the use of Microsoft Sentinel Analytics, showing how incidents are detected and managed in real-time.</p>
-        </div>
-    </div>
-
-    <script>
-        function showTab(tabName) {
-            // Hide all tab contents
-            var contents = document.querySelectorAll('.tab-content');
-            contents.forEach(function(content) {
-                content.classList.remove('active-tab');
-            });
-
-            // Show the selected tab content
-            document.getElementById(tabName).classList.add('active-tab');
-        }
-
-        // Set default tab to be visible
-        showTab('keyConcepts');
-    </script>
-</body>
-</html>
-    
     <h2>1. Environment Setup in Azure</h2>
     <p><strong>Azure Subscription</strong>: The lab starts with an Azure subscription, which can be a free trial or a pay-as-you-go account.</p>
     <p><strong>Resource Groups</strong>: Resources are organized into resource groups like RG lab for the main lab components and RG attacker for the attacker machine.</p>
