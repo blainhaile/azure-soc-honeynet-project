@@ -97,6 +97,65 @@
     <h2>9. Measuring the Impact of Hardening</h2>
     <p>KQL queries are used to gather metrics on security events (e.g., Syslog count) before and after the hardening measures are implemented. The goal is to demonstrate a reduction in malicious activity and improve the security posture after applying the remediations.</p>
 
+<h3>Metrics Before Hardening / Security Controls</h3>
+<p>The following table shows the metrics we measured in our insecure environment for 24 hours:</p>
+<table border="1">
+    <thead>
+        <tr>
+            <th>Count</th>
+            <th>Metric</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>9329</td>
+            <td>Syslog</td>
+        </tr>
+        <tr>
+            <td>138</td>
+            <td>Security Incident</td>
+        </tr>
+        <tr>
+            <td>137</td>
+            <td>Security Alert</td>
+        </tr>
+        <tr>
+            <td>48</td>
+            <td>Azure Activity</td>
+        </tr>
+    </tbody>
+</table>
+
+<h3>Metrics After Hardening / Security Controls</h3>
+<p>The following table shows the metrics we measured in our environment for another 24 hours, but after we have applied security controls:</p>
+<table border="1">
+    <thead>
+        <tr>
+            <th>Count</th>
+            <th>Metric</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td></td>
+            <td>Syslog</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>Security Incident</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>Security Alert</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>Azure Activity</td>
+        </tr>
+    </tbody>
+</table>
+
+    
     <h2>Key Concepts Demonstrated</h2>
     <ul>
         <li><strong>Honeynet</strong>: Creating seemingly vulnerable systems to attract and analyze attacks.</li>
