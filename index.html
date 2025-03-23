@@ -1,47 +1,58 @@
-# Azure Cybersecurity Lab - SOC and Honeynet
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Azure Cybersecurity Lab - SOC and Honeynet</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Azure Cybersecurity Lab - SOC and Honeynet</h1>
+    </header>
+    <section>
+        <p>This cybersecurity lab in Azure aims to demonstrate the creation of a honeynet and the operation of a Security Operations Center (SOC) to identify and remediate vulnerabilities. The lab involves building a vulnerable environment, simulating attacks, collecting and analyzing logs using a Security Information and Event Management (SIEM) system, visualizing the data, detecting incidents, and performing basic incident response. Here is a breakdown of the lab components and steps:</p>
 
-This cybersecurity lab in Azure aims to demonstrate the creation of a honeynet and the operation of a Security Operations Center (SOC) to identify and remediate vulnerabilities. The lab involves building a vulnerable environment, simulating attacks, collecting and analyzing logs using a Security Information and Event Management (SIEM) system, visualizing the data, detecting incidents, and performing basic incident response. Here is a breakdown of the lab components and steps:
+        <h2>1. Environment Setup in Azure:</h2>
+        <ul>
+            <li><strong>Azure Subscription:</strong> The lab starts with an Azure subscription, which can be a free trial or a pay-as-you-go account.</li>
+            <li><strong>Resource Groups:</strong> Resources are organized into resource groups like <code>RG lab</code> for the main lab components and <code>RG attacker</code> for the attacker machine.</li>
+        </ul>
 
-## 1. Environment Setup in Azure:
-- **Azure Subscription**: The lab starts with an Azure subscription, which can be a free trial or a pay-as-you-go account.
-- **Resource Groups**: Resources are organized into resource groups like `RG lab` for the main lab components and `RG attacker` for the attacker machine.
+        <h3>Virtual Machines (VMs):</h3>
+        <ul>
+            <li><strong>Windows VM:</strong> A Windows virtual machine is created in the <code>RG lab</code> resource group. It is configured with at least two vCPUs for performance. An administrator account (lab user) with a password is created.</li>
+            <li><strong>Linux VM:</strong> A Linux (Ubuntu Server) virtual machine is also created in the same <code>RG lab</code> resource group and virtual network (<code>lab vnet</code>). It uses the same lab user credentials for simplicity.</li>
+            <li><strong>Attacker VM:</strong> A separate Windows virtual machine is created in a new resource group <code>RG attacker</code> and a new virtual network. It also uses the lab user credentials. This VM is intended to simulate attacks from a potentially different geographical location (although in this lab, it was created in the same region).</li>
+        </ul>
 
-### Virtual Machines (VMs):
-- **Windows VM**: A Windows virtual machine is created in the `RG lab` resource group. It is configured with at least two vCPUs for performance. An administrator account (lab user) with a password is created.
-- **Linux VM**: A Linux (Ubuntu Server) virtual machine is also created in the same `RG lab` resource group and virtual network (`lab vnet`). It uses the same lab user credentials for simplicity.
-- **Attacker VM**: A separate Windows virtual machine is created in a new resource group `RG attacker` and a new virtual network. It also uses the lab user credentials. This VM is intended to simulate attacks from a potentially different geographical location (although in this lab, it was created in the same region).
+        <h3>Virtual Network (VNet) and Subnet:</h3>
+        <ul>
+            <li>A virtual network named <code>lab vnet</code> is created to host the initial VMs.</li>
+        </ul>
 
-### Virtual Network (VNet) and Subnet:
-- A virtual network named `lab vnet` is created to host the initial VMs.
+        <h3>Network Security Groups (NSGs):</h3>
+        <ul>
+            <li>NSGs act as firewalls in Azure. Initially, a dangerous rule is added to the NSGs associated with both the Windows and Linux VMs to allow any inbound traffic from any source to any destination, making them highly vulnerable. This is done specifically to generate attack logs.</li>
+        </ul>
 
-### Network Security Groups (NSGs):
-- NSGs act as firewalls in Azure. Initially, a dangerous rule is added to the NSGs associated with both the Windows and Linux VMs to allow any inbound traffic from any source to any destination, making them highly vulnerable. This is done specifically to generate attack logs.
+        <h2>2. Vulnerability Introduction:</h2>
+        <ul>
+            <li><strong>Windows Firewall Disablement:</strong> The Windows Defender Firewall is completely turned off on the Windows VM to make it directly accessible from the internet.</li>
+            <li><strong>SQL Server Installation and Configuration:</strong>
+                <ul>
+                    <li>SQL Server Evaluation edition is downloaded and installed on the Windows VM.</li>
+                    <li>Mixed Mode authentication is enabled, and an <code>sa</code> user with a password is created.</li>
+                    <li>The Windows VM user is also added as an administrator to the SQL Server.</li>
+                    <li>SQL Server is configured to send audit logs (failed and successful logins) to the Windows Event Viewer by modifying permissions in the registry editor and running a command in the Command Prompt.</li>
+                    <li>SQL Server Management Studio (SSMS) is installed on the Windows VM to provide a graphical interface for managing the SQL Server. Login auditing is configured in SSMS to capture both failed and successful login attempts.</li>
+                </ul>
+            </li>
+        </ul>
 
-## 2. Vulnerability Introduction:
-- **Windows Firewall Disablement**: The Windows Defender Firewall is completely turned off on the Windows VM to make it directly accessible from the internet.
-- **SQL Server Installation and Configuration**:
-    - SQL Server Evaluation edition is downloaded and installed on the Windows VM.
-    - Mixed Mode authentication is enabled, and an `sa` user with a password is created.
-    - The Windows VM user is also added as an administrator to the SQL Server.
-    - SQL Server is configured to send audit logs (failed and successful logins) to the Windows Event Viewer by modifying permissions in the registry editor and running a command in the Command Prompt.
-    - SQL Server Management Studio (SSMS) is installed on the Windows VM to provide a graphical interface for managing the SQL Server. Login auditing is configured in SSMS to capture both failed and successful login attempts.
+        <!-- Continue similar sections for the rest of your breakdown -->
 
-## 3. Attack Simulation:
-- **RDP Brute-Force Attempt**: From the attacker VM, multiple failed Remote Desktop Protocol (RDP) login attempts are made against the Windows VM using an incorrect username.
-- **SQL Injection/Brute-Force Attempt**: SSMS is installed on the attacker VM, and several failed login attempts are made against the SQL Server on the Windows VM using incorrect credentials. Subsequently, a successful login is performed.
-- **SSH Brute-Force Attempt**: From the attacker VM, multiple failed Secure Shell (SSH) login attempts are made against the Linux VM using an incorrect username. A successful SSH connection is then established using the correct credentials.
-
-## 4. Log Collection and Management:
-- **Windows Event Viewer**: The Windows Event Viewer on the Windows VM is used to observe security logs (RDP attempts) and application logs (SQL Server login attempts).
-- **Linux Audit Logs**: The `auth.log` file on the Linux VM is examined via SSH to view authentication attempts, demonstrating the high volume and complexity of raw logs.
-- **Log Analytics Workspace**: A Log Analytics Workspace (`law RG lab`) is created in Azure to serve as a centralized repository for logs.
-- **Microsoft Sentinel**: Microsoft Sentinel is deployed and connected to the Log Analytics Workspace to provide SIEM and Security Orchestration, Automation and Response (SOAR) capabilities.
-- **GeoIP Watchlist**: A CSV file (`goipsummarized.csv`) is downloaded and uploaded as a watchlist named `GeoIP` in Microsoft Sentinel. This watchlist helps correlate IP addresses with geographical locations for map visualizations.
-
-## 5. Enabling Data Connectors:
-- **Microsoft Defender for Cloud**: Microsoft Defender for Cloud is enabled for the subscription and configured to collect all security events. Continuous export is set up to send data to the Log Analytics Workspace.
-- **NSG Flow Logs**: NSG flow logs are configured for both the Linux and Windows VMs, sending traffic logs to a newly created Azure Storage Account. Traffic analytics is enabled to provide insights into network traffic.
-- **Azure Monitor Agent and Data Collection Rules**: Data collection rules are created in Azure Monitor to collect Syslog from the Linux VM (specifically login/logoff events) and Windows Event Logs (Security and Application) from the Windows VM and send them to the Log Analytics Workspace. Custom XPath queries are added to collect specific event IDs related to malicious detection and Windows Firewall tampering.
-- **Entra ID (Azure AD) Logs**: Diagnostic settings are configured in Entra ID to send Audit Logs and Sign-in Logs to the Log Analytics Workspace. A new user (`test`) with Global Administrator privileges is created and attempts to sign in (with both failed and successful attempts) to generate these logs.
-- **Azure Activity Log**: Diagnostic settings are configured to export the Azure Activity Log (subscription-level events) to the Log Analytics Workspace.
-- **Resource-Specific Logs**: Diagnostic settings are enabled for a Storage Account (Blob service - Audit logs) and a Key Vault (all logs
+    </section>
+</body>
+</html>
